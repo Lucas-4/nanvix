@@ -95,25 +95,29 @@ PUBLIC void yield(void)
 			continue;
 
 		/*
-		 * Process with higher
-		 * waiting time found.
+		 * Process with highest
+		 * priority found.
 		 */
-		if (p->counter > next->counter)
+		if (p->priority > next->priority)
 		{
 			next->counter++;
+			next->priority++;
 			next = p;
 		}
 
 		/*
 		 * Increment waiting
-		 * time of process.
+		 * time and priority of process.
 		 */
-		else
+		else{
 			p->counter++;
+			p->priority++;
+		}
+		
 	}
 
 	/* Switch to next process. */
-	next->priority = PRIO_USER;
+	next->priority = PRIO_USER + next->nice; //set the priority with to the user priority + the nice value
 	next->state = PROC_RUNNING;
 	next->counter = PROC_QUANTUM;
 	if (curr_proc != next)
