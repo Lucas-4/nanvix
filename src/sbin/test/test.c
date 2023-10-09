@@ -228,8 +228,11 @@ static void work_io(void)
  */
 static int sched_test0(void)
 {
+	
 	pid_t pid;
-
+	struct tms time;
+	clock_t ti, tf; //initial and final time
+	ti = times(&time);
 	pid = fork();
 
 	/* Failed to fork(). */
@@ -244,7 +247,8 @@ static int sched_test0(void)
 	}
 
 	wait(NULL);
-
+	tf = times(&time);
+	printf("\nTest 0 duration = %d\n", tf-ti);
 	return (0);
 }
 
@@ -258,8 +262,11 @@ static int sched_test0(void)
  */
 static int sched_test1(void)
 {
+	
 	pid_t pid;
-
+	struct tms time;
+	clock_t ti, tf; //initial and final time
+	ti = times(&time);
 	pid = fork();
 
 	/* Failed to fork(). */
@@ -282,7 +289,8 @@ static int sched_test1(void)
 	}
 
 	wait(NULL);
-
+	tf = times(&time);
+	printf("\nTest 1 duration = %d\n", tf-ti);
 	return (0);
 }
 
@@ -296,7 +304,9 @@ static int sched_test1(void)
 static int sched_test2(void)
 {
 	pid_t pid[4];
-
+	struct tms time;
+	clock_t ti, tf; //initial and final time
+	ti = times(&time);
 	for (int i = 0; i < 4; i++)
 	{
 		pid[i] = fork();
@@ -335,7 +345,8 @@ static int sched_test2(void)
 			wait(NULL);
 		}
 	}
-
+	tf = times(&time);
+	printf("\nTest 2 duration = %d\n", tf-ti);
 	return (0);
 }
 
@@ -350,7 +361,9 @@ static int sched_test3(void)
 {
 	pid_t child;
 	pid_t father;
-
+	struct tms time;
+	clock_t ti, tf; //initial and final time
+	ti = times(&time);
 	father = getpid();
 
 	fork();
@@ -366,6 +379,8 @@ static int sched_test3(void)
 	if (getpid() != father)
 		_exit(EXIT_SUCCESS);
 
+	tf = times(&time);
+	printf("\nTest 3 duration = %d\n", tf-ti);
 	return (0);
 }
 
