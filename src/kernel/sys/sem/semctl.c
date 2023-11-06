@@ -20,7 +20,32 @@
 #include <nanvix/const.h>
 #include <sys/sem.h>
 
+PUBLIC int sys_semctl(int semid, int cmd, int val)
+{
+    struct semaphore *s;
 
-PUBLIC int sys_semctl(int semid, int cmd, int val){
-
+    for (s = FIRST_SEM; s <= LAST_SEM; s++)
+    {
+        if (s->id == semid)
+        {
+            if (cmd == GETVAL)
+            {
+                return s->curr_val;
+            }
+            if (cmd == SETVAL)
+            {
+                s->max_val = val;
+                s->curr_val = val;
+                return 0;
+            }
+            if (cmd == IPC_RMID)
+            {
+                s->count--;
+                if (s->count == 0)
+                {
+                    s->id = -1;
+                }
+            }
+        }
+    }
 }

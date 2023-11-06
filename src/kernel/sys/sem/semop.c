@@ -20,7 +20,42 @@
 #include <nanvix/const.h>
 #include <sys/sem.h>
 
+PUBLIC void up(struct semaphore *s)
+{
+    if (s->curr_val == 0)
+    {
+        wakeup(s->chain);
+    }
+    s->curr_val++;
+}
 
-PUBLIC int sys_semop(int semid, int op){
+PUBLIC void down(struct semaphore *s)
+{
+    if (s->curr_val == 0)
+    {
+        sleep(s->chain);
+    }
+    else
+    {
+        s->curr_val--;
+    }
+}
 
+PUBLIC int sys_semop(int semid, int op)
+{
+    struct semaphore *sem;
+    for (sem = FIRST_SEM; sem <= LAST_SEM; sem++)
+    {
+        if (sem->id == semid)
+        {
+            if (op > 0)
+            {
+                up(sem);
+            }
+            else if (op < 0)
+            {
+                down(sem);
+            }
+        }
+    }
 }

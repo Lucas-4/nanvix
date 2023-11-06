@@ -20,7 +20,35 @@
 #include <nanvix/const.h>
 #include <sys/sem.h>
 
+PUBLIC int sys_semget(unsigned key)
+{
+    struct semaphore *sem;
+    // search the semaphore array for a semaphore with the specified key and returns the id
+    for (sem = FIRST_SEM; sem <= LAST_SEM; sem++)
+    {
+        if (sem->key == key)
+        {
+            return sem->id;
+        }
+    }
 
-PUBLIC int sys_semget(unsigned key){
+    /*
+    If no semaphore with the specified key exists, search the semaphore array again for a semaphore with a negative ID.
+    (A negative ID indicates that the semaphore is destroyed)
+    */
+    int i = 0;
+    for (sem = FIRST_SEM; sem <= LAST_SEM; sem++)
+    {
+        if (sem->id < 0)
+        {
+            // The semaphore ID is always set to the index of the semaphore in the array
+            sem->id = i;
+            sem->count = 0;
 
+            return sem->id;
+        }
+        i++;
+    }
+
+    return -1;
 }
