@@ -18,26 +18,33 @@
  */
 
 #include <nanvix/const.h>
+#include <nanvix/pm.h>
 #include <sys/sem.h>
 
+/**/
 PUBLIC void up(struct semaphore *s)
 {
-    if (s->curr_val == 0)
+
+    if (s->curr_val > 0 && s->curr_val < s->max_val)
     {
-        wakeup(s->chain);
+        s->curr_val++;
     }
-    s->curr_val++;
+    else if (s->curr_val == 0)
+    {
+        wakeup(&(s->chain));
+        s->curr_val++;
+    }
 }
 
 PUBLIC void down(struct semaphore *s)
 {
-    if (s->curr_val == 0)
-    {
-        sleep(s->chain);
-    }
-    else
+    if (s->curr_val > 0)
     {
         s->curr_val--;
+    }
+    else if (s->curr_val == 0)
+    {
+        sleep(&(s->chain), PRIO_USER + s->nice);
     }
 }
 
@@ -51,11 +58,14 @@ PUBLIC int sys_semop(int semid, int op)
             if (op > 0)
             {
                 up(sem);
+                return 0;
             }
             else if (op < 0)
             {
                 down(sem);
+                return 0;
             }
         }
     }
+    return -1;
 }
