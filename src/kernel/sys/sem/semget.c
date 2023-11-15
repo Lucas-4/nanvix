@@ -21,8 +21,10 @@
 #include <sys/sem.h>
 
 PUBLIC int sys_semget(unsigned key)
+
 {
     struct semaphore *sem;
+
     // search the semaphore array for a semaphore with the specified key and returns the id
     for (sem = FIRST_SEM; sem <= LAST_SEM; sem++)
     {
@@ -42,6 +44,7 @@ PUBLIC int sys_semget(unsigned key)
         if (sem->id < 0)
         {
             // The semaphore ID is always set to the index of the semaphore in the array
+            sem->key = key;
             sem->id = i;
             sem->count = 0;
 
