@@ -28,7 +28,6 @@ PUBLIC void sem_init(void)
 {
     struct semaphore *sem;
 
-    // search the semaphore array for a semaphore with the specified key and returns the id
     for (sem = FIRST_SEM; sem <= LAST_SEM; sem++)
     {
         sem->id = -1;
