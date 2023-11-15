@@ -44,7 +44,7 @@ PUBLIC void down(struct semaphore *s)
     }
     else if (s->curr_val == 0)
     {
-        sleep(&(s->chain), PRIO_USER + s->nice);
+        sleep(&(s->chain), PRIO_USER + curr_proc->nice);
     }
 }
 
