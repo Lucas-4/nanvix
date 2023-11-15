@@ -20,7 +20,9 @@
 #ifndef SEM_H_
 #define SEM_H_
 
+#include <nanvix/const.h>
 #include <nanvix/pm.h>
+
 /**
  * @brief Comand values for semaphores.
  */
@@ -29,14 +31,15 @@
 #define SETVAL 1   /**< Sets the value of a semaphore.    */
 #define IPC_RMID 3 /**< Destroys a semaphore.            */
 #define MAX_SEM_NUM 10
+#define FIRST_SEM ((&semaphores[0]))
+#define LAST_SEM ((&semaphores[MAX_SEM_NUM - 1]))
 
 /**@}*/
 
 /* Forward definitions. */
-extern int semget(unsigned);
-extern int semctl(int, int, int);
-extern int semop(int, int);
-
+EXTERN int semget(unsigned);
+EXTERN int semctl(int, int, int);
+EXTERN int semop(int, int);
 struct semaphore
 {
     int id;
@@ -47,9 +50,11 @@ struct semaphore
     int max_val;
     int curr_val;
     // chain of processes associated with a semaphore id that will be put to sleep when semaphore is 0
-    struct process **chain;
+    struct process *chain;
 };
 
-PUBLIC struct semaphore semaphores[MAX_SEM_NUM];
+EXTERN struct semaphore semaphores[MAX_SEM_NUM];
+
+EXTERN void sem_init(void);
 
 #endif /* SEM_H_ */
