@@ -27,6 +27,7 @@
 #include <nanvix/mm.h>
 #include <nanvix/syscall.h>
 #include <fcntl.h>
+#include <sys/sem.h>
 
 /**
  * @brief Forks the current process.
