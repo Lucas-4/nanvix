@@ -21,7 +21,7 @@
 #include <nanvix/pm.h>
 #include <sys/sem.h>
 
-/**/
+ /**/
 PUBLIC void up(struct semaphore *s)
 {
 
@@ -48,9 +48,16 @@ PUBLIC void down(struct semaphore *s)
     }
 }
 
+/* Performs up or down operation on a semaphore*/
 PUBLIC int sys_semop(int semid, int op)
 {
+    /* Inavlid parameters */
+    if (semid < 0 || op == 0) {
+        return -1;
+    }
+
     struct semaphore *sem;
+    /* Search the semaphores array for a semaphore with the specified id*/
     for (sem = FIRST_SEM; sem <= LAST_SEM; sem++)
     {
         if (sem->id == semid)
@@ -67,5 +74,7 @@ PUBLIC int sys_semop(int semid, int op)
             }
         }
     }
+
+    /* Returns -1 if no semaphore was found */
     return -1;
 }
