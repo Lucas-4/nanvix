@@ -23,10 +23,10 @@
 #include <nanvix/const.h>
 #include <nanvix/pm.h>
 
-/**
- * @brief Comand values for semaphores.
- */
-/**@{*/
+ /**
+  * @brief Comand values for semaphores.
+  */
+  /**@{*/
 #define GETVAL 0   /**< Returns the value of a semaphore. */
 #define SETVAL 1   /**< Sets the value of a semaphore.    */
 #define IPC_RMID 3 /**< Destroys a semaphore.            */
@@ -44,12 +44,9 @@ struct semaphore
 {
     int id;
     unsigned key;
-
-    // number of processes that are using the semaphore
-    int count;
     int max_val;
     int curr_val;
-    // chain of processes associated with a semaphore id that will be put to sleep when semaphore is 0
+    // chain where the processes will be put to sleep when the semaphore is 0
     struct process *chain;
 };
 
