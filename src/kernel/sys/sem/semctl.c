@@ -20,32 +20,42 @@
 #include <nanvix/const.h>
 #include <sys/sem.h>
 
+ /* Performs control operation on a semaphore */
 PUBLIC int sys_semctl(int semid, int cmd, int val)
 {
+    /* Inavlid parameters */
+    if (semid < 0 || !(cmd == GETVAL || cmd == SETVAL || cmd == IPC_RMID)) {
+        return -1;
+    }
+
+
     struct semaphore *s;
 
     for (s = FIRST_SEM; s <= LAST_SEM; s++)
     {
         if (s->id == semid)
         {
+            /* Returns the current value of the semaphore */
             if (cmd == GETVAL)
             {
                 return s->curr_val;
             }
+            /* Sets the value of the semaphore */
             if (cmd == SETVAL)
             {
                 s->max_val = val;
                 s->curr_val = val;
                 return 0;
             }
+            /* Destroy a semaphore */
             if (cmd == IPC_RMID)
             {
-                s->count--;
-                if (s->count == 0)
-                {
-                    s->id = -1;
-                }
+                s->id = -1;
+                return 0;
             }
         }
     }
+
+    /* Returns -1 if no semaphore was found */
+    return -1;
 }
