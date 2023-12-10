@@ -281,51 +281,70 @@ PRIVATE struct
 	unsigned age;   /**< Age.                 */
 	pid_t owner;    /**< Page owner.          */
 	addr_t addr;    /**< Address of the page. */
+	bool referenced; /**< Reference bit.      */
+	bool modified;   /**< Modified bit.       */
 } frames[NR_FRAMES] = {{0, 0, 0, 0},  };
 
 /**
- * @brief Allocates a page frame.
+ * @brief Allocates a page frame using the NRU page replacement algorithm.
  *
  * @returns Upon success, the number of the frame is returned. Upon failure, a
  *          negative number is returned instead.
  */
 PRIVATE int allocf(void)
 {
-	int i;      /* Loop index.  */
-	int oldest; /* Oldest page. */
+	int i;         /* Loop index.  */
+	int class;     /* Page class.  */
+	int candidates[NR_CLASSES] = {-1, -1, -1, -1}; /* Candidates for replacement in each class. */
 
-	#define OLDEST(x, y) (frames[x].age < frames[y].age)
-
-	/* Search for a free frame. */
-	oldest = -1;
+	/* Update the reference bits for each page. */
 	for (i = 0; i < NR_FRAMES; i++)
 	{
-		/* Found it. */
+		if (frames[i].count > 0)
+			frames[i].referenced = false;
+	}
+
+	/* Search for a free frame or candidates for replacement. */
+	for (i = 0; i < NR_FRAMES; i++)
+	{
 		if (frames[i].count == 0)
 			goto found;
 
-		/* Local page replacement policy. */
-		if (frames[i].owner == curr_proc->pid)
+		/* Update reference bits. */
+		if (frames[i].count > 1 || frames[i].owner == curr_proc->pid)
 		{
-			/* Skip shared pages. */
-			if (frames[i].count > 1)
-				continue;
+			frames[i].referenced = true;
+		}
 
-			/* Oldest page found. */
-			if ((oldest < 0) || (OLDEST(i, oldest)))
-				oldest = i;
+		/* Classify pages based on reference and modified bits. */
+		class = (frames[i].referenced ? 2 : 0) | (frames[i].modified ? 1 : 0);
+
+		/* Update candidates for replacement in each class. */
+		if (candidates[class] == -1 || frames[i].age < frames[candidates[class]].age)
+			candidates[class] = i;
+	}
+
+	/* Select a page for replacement from the lowest non-empty class. */
+	for (class = 0; class < NR_CLASSES; class++)
+	{
+		if (candidates[class] != -1)
+		{
+			i = candidates[class];
+			goto found;
 		}
 	}
 
 	/* No frame left. */
-	if (oldest < 0)
-		return (-1);
-
-	/* Swap page out. */
-	if (swap_out(curr_proc, frames[i = oldest].addr))
-		return (-1);
+	return (-1);
 
 found:
+
+	/* Swap page out. */
+	if (frames[i].count == 1 && frames[i].modified)
+	{
+		if (swap_out(curr_proc, frames[i].addr))
+			return (-1);
+	}
 
 	frames[i].age = ticks;
 	frames[i].count = 1;
