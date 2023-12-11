@@ -271,7 +271,7 @@ PUBLIC void putkpg(void *kpg)
 
 /* Number of page frames. */
 #define NR_FRAMES (UMEM_SIZE/PAGE_SIZE)
-
+#define NR_CLASSES 4
 /**
  * @brief Page frames.
  */

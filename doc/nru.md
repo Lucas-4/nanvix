@@ -1,0 +1,1 @@
+# Algoritmo de substituição de páginas NRU
